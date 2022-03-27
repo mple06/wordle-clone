@@ -1,7 +1,8 @@
-const targetWords = ["aaaaa", "aabaa"]
-const dictionary = ["those", "there", "jumps", "boogy", "fight", "plump"]
+const targetWords = ["those", "there", "jumps", "boogy", "fight", "plump", "hopes", "lover", "balmy"]
+const dictionary = ["aaaaa", "aabaa", "ascek", "fefeo"]
 const WORD_LENGTH = 5
 const FLIP_ANIMATION_DURATION = 500
+const DANCE_ANIMATION_DURATION = 500
 const keyboard = document.querySelector("[data-keyboard]")
 const alertContainer = document.querySelector("[data-alert-container]")
 const guessGrid = document.querySelector("[data-guess-grid]")
@@ -12,6 +13,7 @@ const targetWord = targetWords[Math.floor(dayOffset)]
 
 //function to start the game
 function startInteraction() {
+    console.log("start game");
     //listens to when the click is being clicked or a button is being pressed
     document.addEventListener("click", handleMouseClick)
     document.addEventListener("keydown", handleKeyPress)
@@ -20,7 +22,7 @@ function startInteraction() {
 //function to stop the game
 function stopInteraction() {
     document.removeEventListener("click", handleMouseClick)
-    document.removedEventListener("keydown", handleKeyPress)
+    document.removeEventListener("keydown", handleKeyPress)
 }
 
 //checks if the mouse clicked matches our data key
@@ -64,12 +66,13 @@ function handleKeyPress(e) {
 function pressKey(key) {
     const activeTiles = getActiveTiles()
     if (activeTiles.length >= WORD_LENGTH) return
-    const nextTile = guessGrid.querySelector(":not({data-letter])")
+    const nextTile = guessGrid.querySelector(":not([data-letter])")
     nextTile.dataset.letter = key.toLowerCase()
     nextTile.textContent = key
     nextTile.dataset.state = "active"
 }
 
+//delete last tile completely
 function deleteKey() {
     const activeTiles = getActiveTiles()
     const lastTile = activeTiles[activeTiles.length - 1]
@@ -158,3 +161,38 @@ function shakeTiles(tiles) {
         )
     })
 }
+
+function checkWinLose(guess, tiles) {
+    if (guess === targetWord) {
+        showAlert("You Win", 5000)
+        danceTiles(tiles)
+        stopInteraction()
+        return
+    }
+    const remainingTiles = guessGrid.querySelectorAll(":not([data-letter])")
+    if (remainingTiles.length === 0) {
+        showAlert(targetWord.toUpperCase(), null)
+        stopInteraction()
+    }
+}
+
+function danceTiles(tiles) {
+    tiles.forEach((tile, index) => {
+        setTimeout(() => {
+            tile.classList.add("dance")
+            tile.addEventListener("animationend",
+                () => {
+                    tile.classList.remove("dance")
+                }, { once: true }
+            )
+        }, (index * DANCE_ANIMATION_DURATION) / 5)
+    })
+}
+
+
+document.addEventListener("DOMContentLoaded", function (event) {
+    // Your code to run since DOM is loaded and ready
+    console.log('window loaded');
+
+    startInteraction()
+});
